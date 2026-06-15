@@ -1,0 +1,1056 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="color-scheme" content="light only">
+<title>Aevoria · Initial Family Assessment</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    color-scheme: light only;
+    --linen:        #EFF3F8;
+    --linen-deep:   #E5EDF5;
+    --parchment:    #D6E2EE;
+    --copper:       #2F73AD;
+    --copper-soft:  #BAD9F3;
+    --grey-logo:    #0D4D84;
+    --ink:          #0A2C4A;
+    --ink-soft:     #1E3E5C;
+    --mid:          #3C5872;
+    --stone:        #7C93A8;
+    --paper:        #F7FAFD;
+    --ok:           #2F73AD;
+  }
+
+  html { scroll-behavior: smooth; }
+  body {
+    background: var(--linen);
+    color: var(--ink);
+    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    font-weight: 300;
+    font-size: 15px;
+    line-height: 1.7;
+    -webkit-font-smoothing: antialiased;
+    min-height: 100vh;
+  }
+  ::selection { background: var(--copper); color: var(--paper); }
+
+  /* ─── PERSISTENT GEOMETRIC FRAME ─── */
+  .page-geo {
+    position: fixed;
+    top: -8%; right: -20%;
+    width: 60%; max-width: 720px;
+    opacity: 0.16;
+    pointer-events: none;
+    z-index: 0;
+  }
+  .page-geo-bl {
+    position: fixed;
+    bottom: -12%; left: -16%;
+    width: 44%; max-width: 520px;
+    opacity: 0.10;
+    pointer-events: none;
+    z-index: 0;
+    transform: rotate(180deg);
+  }
+
+  /* ─── TOP BAR ─── */
+  header.bar {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 22px 40px;
+    background: rgba(239, 243, 248, 0.94);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border-bottom: 1px solid var(--parchment);
+  }
+  .brand { display: flex; align-items: center; gap: 13px; }
+  .brand svg { width: 26px; height: auto; display: block; }
+  .brand .wm {
+    font-family: 'Times New Roman', Times, serif;
+    font-size: 17px;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: var(--grey-logo);
+    line-height: 1;
+  }
+  .brand .sub {
+    font-size: 7.5px;
+    letter-spacing: 0.28em;
+    text-transform: uppercase;
+    color: var(--stone);
+    margin-top: 3px;
+  }
+  .bar .step-count {
+    font-size: 10px;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--stone);
+  }
+
+  /* ─── PROGRESS ─── */
+  .progress-track {
+    position: fixed;
+    top: 71px; left: 0; right: 0;
+    height: 1px;
+    background: var(--parchment);
+    z-index: 99;
+  }
+  .progress-fill {
+    height: 100%;
+    width: 0%;
+    background: var(--copper);
+    transition: width 0.6s cubic-bezier(0.4,0,0.2,1);
+  }
+
+  /* ─── STAGE LAYOUT ─── */
+  .wrap {
+    position: relative;
+    z-index: 5;
+    max-width: 680px;
+    margin: 0 auto;
+    padding: 132px 28px 120px;
+  }
+  .stage { display: none; animation: fadeUp 0.5s ease forwards; }
+  .stage.active { display: block; }
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(16px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  .eyebrow {
+    font-size: 9px;
+    letter-spacing: 0.32em;
+    text-transform: uppercase;
+    color: var(--copper);
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .eyebrow .num {
+    font-family: 'Times New Roman', Times, serif;
+    font-style: italic;
+    font-size: 15px;
+    color: var(--stone);
+    letter-spacing: 0;
+  }
+
+  h1.display {
+    font-family: 'Times New Roman', Times, serif;
+    font-weight: 300;
+    font-size: clamp(36px, 6vw, 58px);
+    line-height: 1.05;
+    color: var(--ink);
+    margin-bottom: 28px;
+  }
+  h1.display em { font-style: italic; color: var(--copper); }
+
+  h2.stage-title {
+    font-family: 'Times New Roman', Times, serif;
+    font-weight: 300;
+    font-size: clamp(28px, 4.4vw, 42px);
+    line-height: 1.1;
+    color: var(--ink);
+    margin-bottom: 14px;
+  }
+  h2.stage-title em { font-style: italic; color: var(--copper); }
+
+  .stage-intro {
+    font-size: 15px;
+    line-height: 1.8;
+    color: var(--mid);
+    margin-bottom: 44px;
+    max-width: 560px;
+  }
+  .lede {
+    font-size: 16px;
+    line-height: 1.8;
+    color: var(--ink-soft);
+    margin-bottom: 20px;
+    max-width: 540px;
+  }
+  .lede.soft { font-size: 15px; color: var(--mid); }
+
+  /* ─── PROMISE STRIP on welcome ─── */
+  .promise {
+    margin: 40px 0 52px;
+    padding: 26px 30px;
+    background: var(--ink);
+    color: var(--paper);
+    position: relative;
+    overflow: hidden;
+  }
+  .promise .pg {
+    position: absolute; top: 0; right: 0;
+    width: 160px; opacity: 0.16; pointer-events: none;
+  }
+  .promise .pr-line {
+    font-family: 'Times New Roman', Times, serif;
+    font-style: italic;
+    font-size: 19px;
+    line-height: 1.5;
+    color: var(--paper);
+    position: relative; z-index: 2;
+  }
+  .promise .pr-line em { color: var(--copper-soft); font-style: italic; }
+  .promise .pr-tags {
+    margin-top: 16px;
+    display: flex; flex-wrap: wrap; gap: 18px;
+    position: relative; z-index: 2;
+  }
+  .promise .pr-tag {
+    font-size: 9px; letter-spacing: 0.24em; text-transform: uppercase;
+    color: var(--copper-soft);
+    display: flex; align-items: center; gap: 8px;
+  }
+  .promise .pr-tag::before {
+    content: ''; width: 5px; height: 5px;
+    background: var(--copper-soft);
+    transform: rotate(45deg); display: inline-block;
+  }
+
+  /* ─── QUESTION ─── */
+  .q { margin-bottom: 40px; }
+  .q-label {
+    font-family: 'Times New Roman', Times, serif;
+    font-size: 21px;
+    font-weight: 400;
+    color: var(--ink);
+    line-height: 1.35;
+    margin-bottom: 6px;
+  }
+  .q-note {
+    font-size: 13px;
+    line-height: 1.65;
+    color: var(--stone);
+    margin-bottom: 16px;
+    font-style: italic;
+  }
+  .q-note.tight { margin-bottom: 14px; }
+
+  /* ─── OPTIONS ─── */
+  .opts { display: flex; flex-direction: column; gap: 9px; }
+  .opt {
+    padding: 15px 18px;
+    background: var(--paper);
+    border: 1px solid var(--parchment);
+    border-left: 2px solid transparent;
+    cursor: pointer;
+    font-size: 14px;
+    color: var(--ink-soft);
+    line-height: 1.45;
+    transition: all 0.16s ease;
+    display: flex; align-items: center; gap: 13px;
+    user-select: none;
+  }
+  .opt:hover { border-color: var(--copper); background: #fff; }
+  .opt .tick {
+    width: 15px; height: 15px; flex-shrink: 0;
+    border: 1px solid var(--parchment);
+    display: flex; align-items: center; justify-content: center;
+    transition: all 0.16s;
+  }
+  .opt.check .tick { border-radius: 0; }
+  .opt.radio .tick { border-radius: 50%; }
+  .opt .tick svg { width: 9px; height: 9px; opacity: 0; transition: opacity 0.16s; }
+  .opt.selected {
+    border-color: var(--copper);
+    border-left-color: var(--copper);
+    background: rgba(47,115,173,0.06);
+    color: var(--copper);
+  }
+  .opt.selected .tick { background: var(--copper); border-color: var(--copper); }
+  .opt.selected .tick svg { opacity: 1; }
+
+  /* ─── TEXT FIELDS ─── */
+  .field { margin-bottom: 4px; }
+  .field input, .field textarea, .field select {
+    width: 100%;
+    border: none;
+    border-bottom: 1px solid var(--parchment);
+    background: transparent;
+    padding: 11px 2px;
+    font-family: 'Times New Roman', Times, serif;
+    font-size: 17px;
+    color: var(--ink);
+    transition: border-color 0.2s;
+  }
+  .field textarea {
+    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    font-size: 15px;
+    border: 1px solid var(--parchment);
+    background: var(--paper);
+    padding: 13px 15px;
+    resize: none;
+    line-height: 1.7;
+  }
+  .field input:focus, .field textarea:focus, .field select:focus {
+    outline: none; border-color: var(--copper);
+  }
+  .field input::placeholder, .field textarea::placeholder { color: #A9BCCE; }
+  .field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 22px; }
+  .field-label {
+    font-size: 9px; letter-spacing: 0.24em; text-transform: uppercase;
+    color: var(--copper); margin-bottom: 4px; display: block;
+  }
+
+  /* ─── INSTITUTION CARD ─── */
+  .inst {
+    background: var(--paper);
+    border: 1px solid var(--parchment);
+    padding: 26px 24px 22px;
+    margin-bottom: 16px;
+    position: relative;
+  }
+  .inst-head {
+    font-size: 9px; letter-spacing: 0.26em; text-transform: uppercase;
+    color: var(--copper); margin-bottom: 22px;
+    display: flex; align-items: center; gap: 10px;
+  }
+  .inst-head .dia { width: 7px; height: 7px; background: var(--copper-soft); transform: rotate(45deg); }
+  .inst-remove {
+    position: absolute; top: 18px; right: 20px;
+    background: none; border: none; color: var(--stone);
+    font-size: 22px; line-height: 1; cursor: pointer; transition: color 0.2s;
+  }
+  .inst-remove:hover { color: var(--copper); }
+  .inst .q { margin-bottom: 24px; }
+  .inst .q:last-child { margin-bottom: 0; }
+  .inst .q-label { font-size: 16px; }
+  .sub-opts { display: none; margin-top: 16px; padding-top: 18px; border-top: 1px dashed var(--parchment); }
+  .sub-opts.show { display: block; }
+
+  .add-btn {
+    background: none;
+    border: 1px solid var(--copper);
+    color: var(--copper);
+    font-size: 10px; letter-spacing: 0.18em; text-transform: uppercase;
+    padding: 13px 26px; cursor: pointer; margin-top: 6px;
+    transition: all 0.2s;
+    display: inline-flex; align-items: center; gap: 10px;
+  }
+  .add-btn:hover { background: var(--copper); color: var(--paper); }
+
+  /* ─── OPTIONAL DEPTH TOGGLE ─── */
+  .depth-toggle {
+    margin-top: 8px;
+    padding: 20px 24px;
+    background: var(--linen-deep);
+    border: 1px solid var(--parchment);
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: space-between;
+    gap: 16px; transition: all 0.2s;
+  }
+  .depth-toggle:hover { border-color: var(--copper); }
+  .depth-toggle .dt-text { }
+  .depth-toggle .dt-title {
+    font-family: 'Times New Roman', Times, serif;
+    font-size: 18px; color: var(--ink); margin-bottom: 3px;
+  }
+  .depth-toggle .dt-note { font-size: 12.5px; color: var(--mid); line-height: 1.5; }
+  .depth-toggle .dt-icon {
+    font-family: 'Times New Roman', Times, serif; font-style: italic;
+    font-size: 24px; color: var(--copper); flex-shrink: 0;
+    transition: transform 0.3s;
+  }
+  .depth-toggle.open .dt-icon { transform: rotate(45deg); }
+  .depth-body { display: none; margin-top: 18px; }
+  .depth-body.show { display: block; }
+
+  /* ─── ALLOCATION MATRIX ─── */
+  .alloc-row {
+    display: grid;
+    grid-template-columns: 1.3fr 1fr;
+    gap: 16px;
+    align-items: center;
+    padding: 11px 0;
+    border-bottom: 1px solid var(--parchment);
+  }
+  .alloc-row:last-child { border-bottom: none; }
+  .alloc-name { font-size: 14px; color: var(--ink-soft); }
+  .alloc-select {
+    border: 1px solid var(--parchment);
+    background: var(--paper);
+    padding: 8px 10px;
+    font-size: 13px;
+    color: var(--ink);
+    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    cursor: pointer;
+  }
+  .alloc-select:focus { outline: none; border-color: var(--copper); }
+
+  /* ─── NAV ─── */
+  .nav {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-top: 48px; padding-top: 24px;
+    border-top: 1px solid var(--parchment);
+  }
+  .back {
+    background: none; border: none; color: var(--stone);
+    font-size: 10px; letter-spacing: 0.18em; text-transform: uppercase;
+    cursor: pointer; padding: 12px 0; transition: color 0.2s;
+  }
+  .back:hover { color: var(--copper); }
+  .back.hidden { visibility: hidden; }
+  .next {
+    background: var(--ink); border: none; color: var(--paper);
+    font-size: 10px; letter-spacing: 0.2em; text-transform: uppercase;
+    padding: 16px 44px; cursor: pointer; transition: all 0.25s;
+    display: inline-flex; align-items: center; gap: 12px;
+  }
+  .next:hover { background: var(--copper); }
+  .next:disabled { background: var(--parchment); color: var(--stone); cursor: not-allowed; }
+  .next .arrow { transition: transform 0.25s; }
+  .next:hover:not(:disabled) .arrow { transform: translateX(4px); }
+
+  /* ─── WELCOME CTA ─── */
+  .begin {
+    background: var(--ink); border: none; color: var(--paper);
+    font-size: 10px; letter-spacing: 0.24em; text-transform: uppercase;
+    padding: 18px 56px; cursor: pointer; transition: all 0.25s;
+    display: inline-flex; align-items: center; gap: 14px;
+  }
+  .begin:hover { background: var(--copper); }
+  .begin .arrow { transition: transform 0.25s; }
+  .begin:hover .arrow { transform: translateX(5px); }
+  .welcome-meta {
+    margin-top: 40px; display: flex; gap: 28px; flex-wrap: wrap;
+  }
+  .wm-item { }
+  .wm-item .l {
+    font-size: 9px; letter-spacing: 0.24em; text-transform: uppercase;
+    color: var(--stone); margin-bottom: 4px;
+  }
+  .wm-item .v {
+    font-family: 'Times New Roman', Times, serif; font-style: italic;
+    font-size: 15px; color: var(--mid);
+  }
+
+  /* ─── THANK YOU ─── */
+  .done { text-align: center; padding-top: 40px; }
+  .done .mark {
+    width: 56px; height: 56px; margin: 0 auto 28px;
+    border: 1px solid var(--copper);
+    display: flex; align-items: center; justify-content: center;
+  }
+  .done .mark svg { width: 22px; height: 22px; }
+
+  /* ─── ERROR ─── */
+  .err {
+    font-size: 13px; color: #B23B3B; margin-bottom: 16px;
+    line-height: 1.5; padding: 12px 16px; background: rgba(178,59,59,0.06);
+    border-left: 2px solid #B23B3B;
+  }
+  .err.hidden { display: none; }
+
+  /* ─── RESPONSIVE ─── */
+  @media (max-width: 600px) {
+    header.bar { padding: 18px 22px; }
+    .wrap { padding: 120px 20px 100px; }
+    .field-row { grid-template-columns: 1fr; gap: 0; }
+    .field-row .field { margin-bottom: 22px; }
+    .alloc-row { grid-template-columns: 1fr; gap: 8px; }
+    .next { padding: 15px 34px; }
+    .promise { padding: 22px 22px; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation: none !important; transition: none !important; }
+  }
+</style>
+</head>
+<body>
+
+<svg class="page-geo" viewBox="0 0 400 400" fill="none" aria-hidden="true">
+  <polygon points="200,20 380,380 20,380" stroke="#2F73AD" stroke-width="0.6"/>
+  <polygon points="200,70 330,340 70,340" stroke="#2F73AD" stroke-width="0.5"/>
+  <polygon points="200,120 280,300 120,300" stroke="#2F73AD" stroke-width="0.4"/>
+  <line x1="200" y1="20" x2="200" y2="380" stroke="#2F73AD" stroke-width="0.3"/>
+  <line x1="20" y1="380" x2="380" y2="380" stroke="#2F73AD" stroke-width="0.3"/>
+</svg>
+<svg class="page-geo-bl" viewBox="0 0 400 400" fill="none" aria-hidden="true">
+  <polygon points="200,20 380,380 20,380" stroke="#2F73AD" stroke-width="0.6"/>
+  <polygon points="200,90 320,340 80,340" stroke="#2F73AD" stroke-width="0.4"/>
+</svg>
+
+<header class="bar">
+  <div class="brand">
+    <svg viewBox="0 0 32 37" aria-hidden="true">
+      <polygon points="6,0 12,10.4 6,20.8 0,10.4" fill="#BAD9F3"/>
+      <polygon points="26,0 32,10.4 26,20.8 20,10.4" fill="#BAD9F3"/>
+      <polygon points="16,15.7 22,26.1 16,36.5 10,26.1" fill="#BAD9F3"/>
+    </svg>
+    <div>
+      <div class="wm">Aevoria</div>
+      <div class="sub">Citadel Finance SA</div>
+    </div>
+  </div>
+  <div class="step-count" id="stepCount"></div>
+</header>
+
+<div class="progress-track"><div class="progress-fill" id="progress"></div></div>
+
+<div class="wrap">
+
+  <!-- ════ 0 · WELCOME ════ -->
+  <section class="stage active" data-stage="0">
+    <div class="eyebrow">Initial Family Assessment</div>
+    <h1 class="display">Before we<br>sit down <em>together.</em></h1>
+    <p class="lede">As we have discussed, this short assessment helps us understand where things stand across the family before our first working session.</p>
+
+    <div class="promise">
+      <svg class="pg" viewBox="0 0 100 100" fill="none" aria-hidden="true">
+        <polygon points="50,8 92,92 8,92" stroke="#BAD9F3" stroke-width="0.8"/>
+        <polygon points="50,30 75,82 25,82" stroke="#BAD9F3" stroke-width="0.6"/>
+      </svg>
+      <div class="pr-line">Aevoria sits on your family's side of the table. We consolidate, coordinate and challenge — <em>the decisions remain yours.</em></div>
+      <div class="pr-tags">
+        <span class="pr-tag">No products</span>
+        <span class="pr-tag">No custody</span>
+        <span class="pr-tag">No commissions</span>
+      </div>
+    </div>
+
+    <p class="lede soft">Most people are not sure of every detail, and that is the point. Where the picture is unclear is exactly where we add value, so answer what you know and leave the rest.</p>
+
+    <div class="welcome-meta">
+      <div class="wm-item"><div class="l">Time</div><div class="v">Around eight minutes</div></div>
+      <div class="wm-item"><div class="l">Detail</div><div class="v">Optional, at your pace</div></div>
+      <div class="wm-item"><div class="l">Confidence</div><div class="v">Strictly between us</div></div>
+    </div>
+
+    <div class="nav">
+      <button class="back hidden">Back</button>
+      <button class="begin" onclick="go(1)">Begin <span class="arrow">→</span></button>
+    </div>
+  </section>
+
+  <!-- ════ 1 · ABOUT YOU ════ -->
+  <section class="stage" data-stage="1">
+    <div class="eyebrow"><span class="num">01</span> About you</div>
+    <h2 class="stage-title">Who we are <em>speaking with</em></h2>
+    <p class="stage-intro">So we can place your answers in the context of the wider family.</p>
+
+    <div class="field-row">
+      <div class="field"><label class="field-label">First name</label><input type="text" id="firstName" placeholder="First name"></div>
+      <div class="field"><label class="field-label">Last name</label><input type="text" id="lastName" placeholder="Last name"></div>
+    </div>
+    <div style="height:32px"></div>
+
+    <div class="q">
+      <div class="q-label">Which part of the family do you represent?</div>
+      <div class="q-note tight">No need to be formal. A branch name, a city, or simply your own name is fine.</div>
+      <div class="field"><input type="text" id="branch" placeholder="e.g. the Lakshman branch, Dubai, or just your name"></div>
+    </div>
+
+    <div class="q">
+      <div class="q-label">Are you completing this for yourself, or on behalf of someone?</div>
+      <div class="opts" data-single="behalf">
+        <div class="opt radio" data-val="self"><span class="tick"><svg viewBox="0 0 12 12"><path d="M2 6l3 3 5-6" stroke="#fff" stroke-width="1.6" fill="none"/></svg></span>For myself</div>
+        <div class="opt radio" data-val="member"><span class="tick"><svg viewBox="0 0 12 12"><path d="M2 6l3 3 5-6" stroke="#fff" stroke-width="1.6" fill="none"/></svg></span>On behalf of a family member or the family</div>
+        <div class="opt radio" data-val="advisor"><span class="tick"><svg viewBox="0 0 12 12"><path d="M2 6l3 3 5-6" stroke="#fff" stroke-width="1.6" fill="none"/></svg></span>As an adviser, CFO or family office manager</div>
+      </div>
+    </div>
+
+    <div class="q">
+      <div class="q-label">How involved are you in the family's financial affairs?</div>
+      <div class="q-note tight">There is no right answer. Limited visibility is common and useful for us to know.</div>
+      <div class="opts" data-single="role">
+        <div class="opt radio" data-val="full"><span class="tick"><svg viewBox="0 0 12 12"><path d="M2 6l3 3 5-6" stroke="#fff" stroke-width="1.6" fill="none"/></svg></span>Closely involved, with a good view of the whole picture</div>
+        <div class="opt radio" data-val="partial"><span class="tick"><svg viewBox="0 0 12 12"><path d="M2 6l3 3 5-6" stroke="#fff" stroke-width="1.6" fill="none"/></svg></span>Somewhat involved, with partial visibility</div>
+        <div class="opt radio" data-val="beneficiary"><span class="tick"><svg viewBox="0 0 12 12"><path d="M2 6l3 3 5-6" stroke="#fff" stroke-width="1.6" fill="none"/></svg></span>A family member with limited day-to-day involvement</div>
+      </div>
+    </div>
+
+    <div class="nav">
+      <button class="back" onclick="go(0)">Back</button>
+      <button class="next" id="next1" onclick="go(2)" disabled>Continue <span class="arrow">→</span></button>
+    </div>
+  </section>
+
+  <!-- ════ 2 · THE SHAPE OF THE WEALTH ════ -->
+  <section class="stage" data-stage="2">
+    <div class="eyebrow"><span class="num">02</span> The shape of things</div>
+    <h2 class="stage-title">Where the wealth <em>sits today</em></h2>
+    <p class="stage-intro">A picture of the whole, before the detail. Answer broadly. This shapes how we approach our first conversation.</p>
+
+    <div class="q">
+      <div class="q-label">Where does most of the family's wealth sit today?</div>
+      <div class="q-note tight">Select all that apply.</div>
+      <div class="opts" data-multi="composition">
+        <div class="opt check" data-val="business"><span class="tick"><svg viewBox="0 0 12 12"><path d="M2 6l3 3 5-6" stroke="#fff" stroke-width="1.6" fill="none"/></svg></span>In an operating business, or businesses, we own</div>
+        <div class="opt check" data-val="realised"><span class="tick"><svg viewBox="0 0 12 12"><path d="M2 6l3 3 5-6" stroke="#fff" stroke-width="1.6" fill="none"/></svg></span>Recently realised from a sale or liquidity event</div>
+        <div class="opt check" data-val="property"><span class="tick"><svg viewBox="0 0 12 12"><path d="M2 6l3 3 5-6" stroke="#fff" stroke-width="1.6" fill="none"/></svg></span>Real estate and property</div>
+        <div class="opt check" data-val="portfolios"><span class="tick"><svg viewBox="0 0 12 12"><path d="M2 6l3 3 5-6" stroke="#fff" stroke-width="1.6" fill="none"/></svg></span>Financial portfolios held across banks</div>
+        <div class="opt check" data-val="private"><span class="tick"><svg viewBox="0 0 12 12"><path d="M2 6l3 3 5-6" stroke="#fff" stroke-width="1.6" fill="none"/></svg></span>Private investments and direct holdings</div>
+        <div class="opt check" data-val="building"><span class="tick"><svg viewBox="0 0 12 12"><path d="M2 6l3 3 5-6" stroke="#fff" stroke-width="1.6" fill="none"/></svg></span>Still being built</div>
+      </div>
+    </div>
+
+    <div class="q">
+      <div class="q-label">In how many countries are assets or entities based?</div>
+      <div class="opts" data-single="countries">
+        <div class="opt radio" data-val="one"><span class="tick"><svg viewBox="0 0 12 12"><path d="M2 6l3 3 5-6" stroke="#fff" stroke-width="1.6" fill="none"/></svg></span>One</div>
+        <div class="opt radio" data-val="few"><span class="tick"><svg viewBox="0 0 12 12"><path d="M2 6l3 3 5-6" stroke="#fff" stroke-width="1.6" fill="none"/></svg></span>Two or three</div>
+        <div class="opt radio" data-val="many"><span class="tick"><svg viewBox="0 0 12 12"><path d="M2 6l3 3 5-6" stroke="#fff" stroke-width="1.6" fill="none"/></svg></span>Four or more</div>
+        <div class="opt radio" data-val="unsure"><span class="tick"><svg viewBox="0 0 12 12"><path d="M2 6l3 3 5-6" stroke="#fff" stroke-width="1.6" fill="none"/></svg></span>Not sure</div>
+      </div>
+    </div>
+
+    <div class="q">
+      <div class="q-label">So we can right-size our approach, roughly what scale are we coordinating?</div>
+      <div class="q-note tight">A broad range only. If you would rather not say, that is completely understood.</div>
+      <div class="opts" data-single="scale">
+        <div class="opt radio" data-val="<25"><span class="tick"><svg viewBox="0 0 12 12"><path d="M2 6l3 3 5-6" stroke="#fff" stroke-width="1.6" fill="none"/></svg></span>Under USD 25 million</div>
+        <div class="opt radio" data-val="25-100"><span class="tick"><svg viewBox="0 0 12 12"><path d="M2 6l3 3 5-6" stroke="#fff" stroke-width="1.6" fill="none"/></svg></span>USD 25 to 100 million</div>
+        <div class="opt radio" data-val="100-250"><span class="tick"><svg viewBox="0 0 12 12"><path d="M2 6l3 3 5-6" stroke="#fff" stroke-width="1.6" fill="none"/></svg></span>USD 100 to 250 million</div>
+        <div class="opt radio" data-val="250+"><span class="tick"><svg viewBox="0 0 12 12"><path d="M2 6l3 3 5-6" stroke="#fff" stroke-width="1.6" fill="none"/></svg></span>USD 250 million and above</div>
+        <div class="opt radio" data-val="skip"><span class="tick"><svg viewBox="0 0 12 12"><path d="M2 6l3 3 5-6" stroke="#fff" stroke-width="1.6" fill="none"/></svg></span>I would prefer not to say at this stage</div>
+      </div>
+    </div>
+
+    <div class="nav">
+      <button class="back" onclick="go(1)">Back</button>
+      <button class="next" onclick="go(3)">Continue <span class="arrow">→</span></button>
+    </div>
+  </section>
+
+  <!-- ════ 3 · BANKING & WHAT IT COSTS ════ -->
+  <section class="stage" data-stage="3">
+    <div class="eyebrow"><span class="num">03</span> Banks and what they cost</div>
+    <h2 class="stage-title">The relationships <em>in place</em></h2>
+    <p class="stage-intro">Add the banks and institutions you are aware of. Share only what you know. If you are not sure what you pay, that is the single most useful thing you can tell us, and it is what we are here to find out.</p>
+
+    <div id="instList"></div>
+    <button class="add-btn" onclick="addInst()">+ Add another institution</button>
+
+    <div class="nav">
+      <button class="back" onclick="go(2)">Back</button>
+      <button class="next" onclick="go(4)">Continue <span class="arrow">→</span></button>
+    </div>
+  </section>
+
+  <!-- ════ 4 · WHAT YOU WANT ════ -->
+  <section class="stage" data-stage="4">
+    <div class="eyebrow"><span class="num">04</span> What you want</div>
+    <h2 class="stage-title">What a good outcome <em>looks like</em></h2>
+    <p class="stage-intro">The direction matters more than the detail here.</p>
+
+    <div class="q">
+      <div class="q-label">What is the primary objective for the family's wealth?</div>
+      <div class="opts" data-single="objective">
+        <div class="opt radio" data-val="growth"><span class="tick"><svg viewBox="0 0 12 12"><path d="M2 6l3 3 5-6" stroke="#fff" stroke-width="1.6" fill="none"/></svg></span>Long-term growth</div>
+        <div class="opt radio" data-val="preserve"><span class="tick"><svg viewBox="0 0 12 12"><path d="M2 6l3 3 5-6" stroke="#fff" stroke-width="1.6" fill="none"/></svg></span>Preserving what the family has built</div>
+        <div class="opt radio" data-val="income"><span class="tick"><svg viewBox="0 0 12 12"><path d="M2 6l3 3 5-6" stroke="#fff" stroke-width="1.6" fill="none"/></svg></span>Generating reliable income</div>
+        <div class="opt radio" data-val="succession"><span class="tick"><svg viewBox="0 0 12 12"><path d="M2 6l3 3 5-6" stroke="#fff" stroke-width="1.6" fill="none"/></svg></span>Structuring for the next generation</div>
+        <div class="opt radio" data-val="philanthropy"><span class="tick"><svg viewBox="0 0 12 12"><path d="M2 6l3 3 5-6" stroke="#fff" stroke-width="1.6" fill="none"/></svg></span>Philanthropic planning</div>
+        <div class="opt radio" data-val="clarity"><span class="tick"><svg viewBox="0 0 12 12"><path d="M2 6l3 3 5-6" stroke="#fff" stroke-width="1.6" fill="none"/></svg></span>First of all, a clear picture of where things stand</div>
+        <div class="opt radio" data-val="work-out"><span class="tick"><svg viewBox="0 0 12 12"><path d="M2 6l3 3 5-6" stroke="#fff" stroke-width="1.6" fill="none"/></svg></span>This is part of what we want to work out together</div>
+      </div>
+    </div>
+
+    <div class="q">
+      <div class="q-label">As you look ahead, where would you like the wealth to lean?</div>
+      <div class="q-note tight">Select up to three.</div>
+      <div class="opts" data-multi="direction" data-max="3">
+        <div class="opt check" data-val="opportunity"><span class="tick"><svg viewBox="0 0 12 12"><path d="M2 6l3 3 5-6" stroke="#fff" stroke-width="1.6" fill="none"/></svg></span>More growth and opportunity</div>
+        <div class="opt check" data-val="protection"><span class="tick"><svg viewBox="0 0 12 12"><path d="M2 6l3 3 5-6" stroke="#fff" stroke-width="1.6" fill="none"/></svg></span>More protection and preservation</div>
+        <div class="opt check" data-val="income"><span class="tick"><svg viewBox="0 0 12 12"><path d="M2 6l3 3 5-6" stroke="#fff" stroke-width="1.6" fill="none"/></svg></span>More income generation</div>
+        <div class="opt check" data-val="private"><span class="tick"><svg viewBox="0 0 12 12"><path d="M2 6l3 3 5-6" stroke="#fff" stroke-width="1.6" fill="none"/></svg></span>More private and direct investments</div>
+        <div class="opt check" data-val="diversify"><span class="tick"><svg viewBox="0 0 12 12"><path d="M2 6l3 3 5-6" stroke="#fff" stroke-width="1.6" fill="none"/></svg></span>More diversification across the board</div>
+        <div class="opt check" data-val="simplify"><span class="tick"><svg viewBox="0 0 12 12"><path d="M2 6l3 3 5-6" stroke="#fff" stroke-width="1.6" fill="none"/></svg></span>Simpler, with fewer moving parts</div>
+        <div class="opt check" data-val="guidance"><span class="tick"><svg viewBox="0 0 12 12"><path d="M2 6l3 3 5-6" stroke="#fff" stroke-width="1.6" fill="none"/></svg></span>I would value guidance on this</div>
+      </div>
+    </div>
+
+    <div class="q">
+      <div class="q-label">What are the biggest concerns today?</div>
+      <div class="q-note tight">Select all that apply.</div>
+      <div class="opts" data-multi="concerns">
+        <div class="opt check" data-val="costs"><span class="tick"><svg viewBox="0 0 12 12"><path d="M2 6l3 3 5-6" stroke="#fff" stroke-width="1.6" fill="none"/></svg></span>We do not really know what we are paying</div>
+        <div class="opt check" data-val="returns"><span class="tick"><svg viewBox="0 0 12 12"><path d="M2 6l3 3 5-6" stroke="#fff" stroke-width="1.6" fill="none"/></svg></span>We are not sure if the returns are good</div>
+        <div class="opt check" data-val="fragmented"><span class="tick"><svg viewBox="0 0 12 12"><path d="M2 6l3 3 5-6" stroke="#fff" stroke-width="1.6" fill="none"/></svg></span>Assets are scattered with no single view</div>
+        <div class="opt check" data-val="governance"><span class="tick"><svg viewBox="0 0 12 12"><path d="M2 6l3 3 5-6" stroke="#fff" stroke-width="1.6" fill="none"/></svg></span>No clear decision-making process across the family</div>
+        <div class="opt check" data-val="succession"><span class="tick"><svg viewBox="0 0 12 12"><path d="M2 6l3 3 5-6" stroke="#fff" stroke-width="1.6" fill="none"/></svg></span>No plan for the next generation</div>
+        <div class="opt check" data-val="alignment"><span class="tick"><svg viewBox="0 0 12 12"><path d="M2 6l3 3 5-6" stroke="#fff" stroke-width="1.6" fill="none"/></svg></span>Different family members want different things</div>
+        <div class="opt check" data-val="independent"><span class="tick"><svg viewBox="0 0 12 12"><path d="M2 6l3 3 5-6" stroke="#fff" stroke-width="1.6" fill="none"/></svg></span>I would value a truly independent second opinion</div>
+        <div class="opt check" data-val="complexity"><span class="tick"><svg viewBox="0 0 12 12"><path d="M2 6l3 3 5-6" stroke="#fff" stroke-width="1.6" fill="none"/></svg></span>The structure has become too complex to manage</div>
+      </div>
+    </div>
+
+    <div class="q">
+      <div class="q-label">What prompted you to look at this now?</div>
+      <div class="q-note tight">Optional, but useful.</div>
+      <div class="field"><textarea id="prompt" rows="2" placeholder="A liquidity event, a generational shift, a concern that costs are not being challenged..."></textarea></div>
+    </div>
+
+    <!-- Optional allocation depth -->
+    <div class="depth-toggle" id="allocToggle" onclick="toggleDepth('alloc')">
+      <div class="dt-text">
+        <div class="dt-title">Add target allocation detail</div>
+        <div class="dt-note">Optional. For those who would like to be specific about where the portfolio should sit. Skip freely.</div>
+      </div>
+      <div class="dt-icon">+</div>
+    </div>
+    <div class="depth-body" id="allocBody">
+      <div style="height:24px"></div>
+      <div class="q">
+        <div class="q-label" style="font-size:18px">Target allocation</div>
+        <div class="q-note tight">Where would you like the family's wealth to sit, broadly? Leave any row blank.</div>
+        <div id="allocMatrix"></div>
+      </div>
+      <div class="q">
+        <div class="q-label" style="font-size:18px">Any firm constraints or preferences?</div>
+        <div class="opts" data-multi="constraints">
+          <div class="opt check" data-val="esg"><span class="tick"><svg viewBox="0 0 12 12"><path d="M2 6l3 3 5-6" stroke="#fff" stroke-width="1.6" fill="none"/></svg></span>ESG or sustainability requirements</div>
+          <div class="opt check" data-val="sharia"><span class="tick"><svg viewBox="0 0 12 12"><path d="M2 6l3 3 5-6" stroke="#fff" stroke-width="1.6" fill="none"/></svg></span>Sharia-compliant structure required</div>
+          <div class="opt check" data-val="private-pref"><span class="tick"><svg viewBox="0 0 12 12"><path d="M2 6l3 3 5-6" stroke="#fff" stroke-width="1.6" fill="none"/></svg></span>Preference for private markets over listed assets</div>
+          <div class="opt check" data-val="income-pref"><span class="tick"><svg viewBox="0 0 12 12"><path d="M2 6l3 3 5-6" stroke="#fff" stroke-width="1.6" fill="none"/></svg></span>Preference for income-generating assets</div>
+          <div class="opt check" data-val="exclusions"><span class="tick"><svg viewBox="0 0 12 12"><path d="M2 6l3 3 5-6" stroke="#fff" stroke-width="1.6" fill="none"/></svg></span>Certain sectors or regions to avoid</div>
+        </div>
+        <div style="height:14px"></div>
+        <div class="field"><input type="text" id="constraintNote" placeholder="Anything specific to note (optional)"></div>
+      </div>
+    </div>
+
+    <div class="nav">
+      <button class="back" onclick="go(3)">Back</button>
+      <button class="next" onclick="go(5)">Continue <span class="arrow">→</span></button>
+    </div>
+  </section>
+
+  <!-- ════ 5 · CONTACT ════ -->
+  <section class="stage" data-stage="5">
+    <div class="eyebrow"><span class="num">05</span> Getting in touch</div>
+    <h2 class="stage-title">Where to <em>reach you</em></h2>
+    <p class="stage-intro">The first conversation commits to nothing on either side.</p>
+
+    <div class="q">
+      <div class="field"><label class="field-label">Email</label><input type="email" id="email" placeholder="Email address"></div>
+    </div>
+    <div class="q">
+      <div class="field"><label class="field-label">Phone, including country code (optional)</label><input type="tel" id="phone" placeholder="+971 ..."></div>
+    </div>
+    <div class="q">
+      <div class="q-label">How would you prefer us to reach you?</div>
+      <div class="opts" data-single="contactPref">
+        <div class="opt radio" data-val="email"><span class="tick"><svg viewBox="0 0 12 12"><path d="M2 6l3 3 5-6" stroke="#fff" stroke-width="1.6" fill="none"/></svg></span>Email</div>
+        <div class="opt radio" data-val="whatsapp"><span class="tick"><svg viewBox="0 0 12 12"><path d="M2 6l3 3 5-6" stroke="#fff" stroke-width="1.6" fill="none"/></svg></span>WhatsApp</div>
+        <div class="opt radio" data-val="call"><span class="tick"><svg viewBox="0 0 12 12"><path d="M2 6l3 3 5-6" stroke="#fff" stroke-width="1.6" fill="none"/></svg></span>Phone call</div>
+        <div class="opt radio" data-val="video"><span class="tick"><svg viewBox="0 0 12 12"><path d="M2 6l3 3 5-6" stroke="#fff" stroke-width="1.6" fill="none"/></svg></span>Video call</div>
+      </div>
+    </div>
+
+    <div class="err hidden" id="errBox"></div>
+
+    <div class="nav">
+      <button class="back" onclick="go(4)">Back</button>
+      <button class="next" id="submitBtn" onclick="submitForm()" disabled>Submit <span class="arrow">→</span></button>
+    </div>
+  </section>
+
+  <!-- ════ 6 · DONE ════ -->
+  <section class="stage" data-stage="6">
+    <div class="done">
+      <div class="mark"><svg viewBox="0 0 24 24"><path d="M4 12l5 5 11-12" stroke="#2F73AD" stroke-width="1.5" fill="none"/></svg></div>
+      <h2 class="stage-title" style="text-align:center">Thank you</h2>
+      <p class="stage-intro" style="margin: 18px auto 0; text-align:center">
+        We will review everything you have shared and be in touch to arrange our first proper conversation. Nothing here commits you to anything. It is simply the beginning of a useful process for your family.
+      </p>
+    </div>
+  </section>
+
+</div>
+
+<script>
+  // ════ CONFIG ════
+  // Replace with your Aevoria Formspree endpoint (formspree.io → connect to your Aevoria email)
+  const FORMSPREE_URL = "https://formspree.io/f/mbdewgwk";
+
+  const TOTAL_STAGES = 5; // 1..5 count toward progress; 0 welcome, 6 done
+  const data = {
+    behalf: "", role: "", composition: [], countries: "", scale: "",
+    objective: "", direction: [], concerns: [], constraints: [], constraintNote: "",
+    contactPref: "", prompt: ""
+  };
+
+  const ASSETS = [
+    "Listed equities","Fixed income & bonds","Private equity & venture",
+    "Real estate","Infrastructure","Cash & equivalents",
+    "Gold & precious metals","Hedge funds & alternatives","Digital assets"
+  ];
+  const TARGETS = ["","0%","Under 5%","5–10%","10–20%","20–30%","Over 30%","No strong view"];
+
+  let current = 0;
+
+  // ── Navigation ──
+  function go(n) {
+    document.querySelectorAll('.stage').forEach(s => s.classList.remove('active'));
+    const el = document.querySelector(`[data-stage="${n}"]`);
+    el.classList.add('active');
+    current = n;
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+
+    const pct = n === 0 ? 0 : n >= 6 ? 100 : Math.round((n / TOTAL_STAGES) * 100);
+    document.getElementById('progress').style.width = pct + '%';
+    document.getElementById('stepCount').textContent =
+      (n >= 1 && n <= 5) ? `${n} / 5` : '';
+  }
+
+  // ── Option selection ──
+  document.addEventListener('click', e => {
+    const opt = e.target.closest('.opt');
+    if (!opt) return;
+    const group = opt.parentElement;
+    const single = group.dataset.single;
+    const multi = group.dataset.multi;
+    const val = opt.dataset.val;
+
+    if (single) {
+      group.querySelectorAll('.opt').forEach(o => o.classList.remove('selected'));
+      opt.classList.add('selected');
+      data[single] = val;
+    } else if (multi) {
+      const max = group.dataset.max ? parseInt(group.dataset.max) : 99;
+      const arr = data[multi];
+      const idx = arr.indexOf(val);
+      if (idx > -1) {
+        arr.splice(idx, 1);
+        opt.classList.remove('selected');
+      } else {
+        if (arr.length >= max) return;
+        arr.push(val);
+        opt.classList.add('selected');
+      }
+    }
+    validateStage1();
+    validateSubmit();
+  });
+
+  // ── Stage 1 gating ──
+  function validateStage1() {
+    const fn = document.getElementById('firstName').value.trim();
+    document.getElementById('next1').disabled = !(fn && data.behalf && data.role);
+  }
+  ['firstName','lastName','branch'].forEach(id =>
+    document.getElementById(id).addEventListener('input', validateStage1));
+
+  // ── Submit gating ──
+  function validateSubmit() {
+    const email = document.getElementById('email').value.trim();
+    const ok = email && /\S+@\S+\.\S+/.test(email) && data.contactPref;
+    document.getElementById('submitBtn').disabled = !ok;
+  }
+  document.getElementById('email').addEventListener('input', validateSubmit);
+
+  // ── Institutions (repeating) ──
+  let instCount = 0;
+  const institutions = [];
+
+  function addInst() {
+    const i = instCount++;
+    institutions.push({ idx: i, name:"", mandate:"", assets:"", knows:"", feeNote:"" });
+    const list = document.getElementById('instList');
+    const card = document.createElement('div');
+    card.className = 'inst';
+    card.dataset.i = i;
+    card.innerHTML = `
+      <div class="inst-head"><span class="dia"></span> Institution ${i+1}</div>
+      ${i>0 ? `<button class="inst-remove" onclick="removeInst(${i})">×</button>` : ``}
+
+      <div class="q">
+        <div class="q-label">Name of bank or institution</div>
+        <div class="q-note tight">If you are unsure of the name, a country or city helps.</div>
+        <div class="field"><input type="text" data-f="name" data-i="${i}" placeholder="e.g. LGT, Julius Baer, or 'a bank in Singapore'"></div>
+      </div>
+
+      <div class="q">
+        <div class="q-label">How are the assets here managed?</div>
+        <div class="opts" data-inst-single="mandate" data-i="${i}">
+          <div class="opt radio" data-val="execution"><span class="tick"><svg viewBox="0 0 12 12"><path d="M2 6l3 3 5-6" stroke="#fff" stroke-width="1.6" fill="none"/></svg></span>Execution only — we decide, the bank holds and executes</div>
+          <div class="opt radio" data-val="advisory"><span class="tick"><svg viewBox="0 0 12 12"><path d="M2 6l3 3 5-6" stroke="#fff" stroke-width="1.6" fill="none"/></svg></span>Advisory — the bank advises, we approve</div>
+          <div class="opt radio" data-val="discretionary"><span class="tick"><svg viewBox="0 0 12 12"><path d="M2 6l3 3 5-6" stroke="#fff" stroke-width="1.6" fill="none"/></svg></span>Discretionary — the bank manages it for us</div>
+          <div class="opt radio" data-val="mix"><span class="tick"><svg viewBox="0 0 12 12"><path d="M2 6l3 3 5-6" stroke="#fff" stroke-width="1.6" fill="none"/></svg></span>A mix of these</div>
+          <div class="opt radio" data-val="unsure"><span class="tick"><svg viewBox="0 0 12 12"><path d="M2 6l3 3 5-6" stroke="#fff" stroke-width="1.6" fill="none"/></svg></span>Not sure</div>
+        </div>
+      </div>
+
+      <div class="q">
+        <div class="q-label">Roughly how much sits here?</div>
+        <div class="opts" data-inst-single="assets" data-i="${i}">
+          <div class="opt radio" data-val="<5"><span class="tick"><svg viewBox="0 0 12 12"><path d="M2 6l3 3 5-6" stroke="#fff" stroke-width="1.6" fill="none"/></svg></span>Under USD 5 million</div>
+          <div class="opt radio" data-val="5-25"><span class="tick"><svg viewBox="0 0 12 12"><path d="M2 6l3 3 5-6" stroke="#fff" stroke-width="1.6" fill="none"/></svg></span>USD 5 to 25 million</div>
+          <div class="opt radio" data-val="25-100"><span class="tick"><svg viewBox="0 0 12 12"><path d="M2 6l3 3 5-6" stroke="#fff" stroke-width="1.6" fill="none"/></svg></span>USD 25 to 100 million</div>
+          <div class="opt radio" data-val="100+"><span class="tick"><svg viewBox="0 0 12 12"><path d="M2 6l3 3 5-6" stroke="#fff" stroke-width="1.6" fill="none"/></svg></span>Over USD 100 million</div>
+          <div class="opt radio" data-val="unsure"><span class="tick"><svg viewBox="0 0 12 12"><path d="M2 6l3 3 5-6" stroke="#fff" stroke-width="1.6" fill="none"/></svg></span>Not sure</div>
+        </div>
+      </div>
+
+      <div class="q">
+        <div class="q-label">Do you know what you pay this institution?</div>
+        <div class="opts" data-inst-single="knows" data-i="${i}">
+          <div class="opt radio" data-val="clear"><span class="tick"><svg viewBox="0 0 12 12"><path d="M2 6l3 3 5-6" stroke="#fff" stroke-width="1.6" fill="none"/></svg></span>Yes, I have a clear sense</div>
+          <div class="opt radio" data-val="rough"><span class="tick"><svg viewBox="0 0 12 12"><path d="M2 6l3 3 5-6" stroke="#fff" stroke-width="1.6" fill="none"/></svg></span>Roughly</div>
+          <div class="opt radio" data-val="no"><span class="tick"><svg viewBox="0 0 12 12"><path d="M2 6l3 3 5-6" stroke="#fff" stroke-width="1.6" fill="none"/></svg></span>No, and I would like to find out</div>
+        </div>
+        <div class="sub-opts" data-sub="${i}">
+          <div class="q" style="margin-bottom:0">
+            <div class="q-label" style="font-size:15px">Roughly what does it cost, all in?</div>
+            <div class="q-note tight">A rough sense across fees, custody and anything inside the products.</div>
+            <div class="opts" data-inst-single="cost" data-i="${i}">
+              <div class="opt radio" data-val="<0.5"><span class="tick"><svg viewBox="0 0 12 12"><path d="M2 6l3 3 5-6" stroke="#fff" stroke-width="1.6" fill="none"/></svg></span>Under 0.5% per year</div>
+              <div class="opt radio" data-val="0.5-1"><span class="tick"><svg viewBox="0 0 12 12"><path d="M2 6l3 3 5-6" stroke="#fff" stroke-width="1.6" fill="none"/></svg></span>0.5% to 1% per year</div>
+              <div class="opt radio" data-val="1-1.5"><span class="tick"><svg viewBox="0 0 12 12"><path d="M2 6l3 3 5-6" stroke="#fff" stroke-width="1.6" fill="none"/></svg></span>1% to 1.5% per year</div>
+              <div class="opt radio" data-val=">1.5"><span class="tick"><svg viewBox="0 0 12 12"><path d="M2 6l3 3 5-6" stroke="#fff" stroke-width="1.6" fill="none"/></svg></span>Over 1.5% per year</div>
+              <div class="opt radio" data-val="flat"><span class="tick"><svg viewBox="0 0 12 12"><path d="M2 6l3 3 5-6" stroke="#fff" stroke-width="1.6" fill="none"/></svg></span>A flat fee — I know the figure</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="q">
+        <div class="q-label">What works, or frustrates you, about this relationship?</div>
+        <div class="q-note tight">Optional.</div>
+        <div class="field"><textarea data-f="feeNote" data-i="${i}" rows="2" placeholder="e.g. good people but unclear costs, slow to act, no consolidated reporting..."></textarea></div>
+      </div>
+    `;
+    list.appendChild(card);
+  }
+
+  function removeInst(i) {
+    const card = document.querySelector(`.inst[data-i="${i}"]`);
+    if (card) card.remove();
+    const obj = institutions.find(x => x.idx === i);
+    if (obj) obj.removed = true;
+    // renumber visible headings
+    document.querySelectorAll('.inst').forEach((c, n) => {
+      c.querySelector('.inst-head').innerHTML = `<span class="dia"></span> Institution ${n+1}`;
+    });
+  }
+
+  // institution option clicks + reveal cost sub-block
+  document.addEventListener('click', e => {
+    const opt = e.target.closest('.opt');
+    if (!opt) return;
+    const group = opt.parentElement;
+    const field = group.dataset.instSingle;
+    if (!field) return;
+    const i = parseInt(group.dataset.i);
+    group.querySelectorAll('.opt').forEach(o => o.classList.remove('selected'));
+    opt.classList.add('selected');
+    const obj = institutions.find(x => x.idx === i);
+    if (obj) obj[field] = opt.dataset.val;
+
+    if (field === 'knows') {
+      const sub = document.querySelector(`.sub-opts[data-sub="${i}"]`);
+      if (sub) sub.classList.toggle('show', opt.dataset.val !== 'no' ? true : false);
+      // if "no", we don't need the cost detail
+      if (opt.dataset.val === 'no' && sub) sub.classList.remove('show');
+    }
+  });
+
+  // institution text inputs
+  document.addEventListener('input', e => {
+    const t = e.target;
+    if (t.dataset.f && t.dataset.i !== undefined && t.closest('.inst')) {
+      const obj = institutions.find(x => x.idx === parseInt(t.dataset.i));
+      if (obj) obj[t.dataset.f] = t.value;
+    }
+  });
+
+  // ── Allocation matrix ──
+  function buildMatrix() {
+    const m = document.getElementById('allocMatrix');
+    m.innerHTML = ASSETS.map((a, i) => `
+      <div class="alloc-row">
+        <div class="alloc-name">${a}</div>
+        <select class="alloc-select" data-asset="${a}">
+          ${TARGETS.map(t => `<option value="${t}">${t === "" ? "—" : t}</option>`).join('')}
+        </select>
+      </div>
+    `).join('');
+  }
+  buildMatrix();
+
+  function toggleDepth(key) {
+    const t = document.getElementById('allocToggle');
+    const b = document.getElementById('allocBody');
+    t.classList.toggle('open');
+    b.classList.toggle('show');
+  }
+
+  // ── Submit ──
+  async function submitForm() {
+    const btn = document.getElementById('submitBtn');
+    const err = document.getElementById('errBox');
+    err.classList.add('hidden');
+    btn.disabled = true;
+    btn.innerHTML = 'Sending...';
+
+    // collect institutions
+    const insts = institutions.filter(x => !x.removed).map((x, n) => ({
+      [`Bank_${n+1}`]: x.name || 'Not named',
+      [`Bank_${n+1}_Mandate`]: x.mandate || 'Not sure',
+      [`Bank_${n+1}_Assets`]: x.assets || 'Not sure',
+      [`Bank_${n+1}_KnowsCost`]: x.knows || 'Not answered',
+      [`Bank_${n+1}_CostEstimate`]: x.cost || 'Not provided',
+      [`Bank_${n+1}_Notes`]: x.feeNote || ''
+    }));
+
+    // collect target allocation
+    const alloc = {};
+    document.querySelectorAll('.alloc-select').forEach(s => {
+      if (s.value) alloc[s.dataset.asset] = s.value;
+    });
+
+    const payload = {
+      _subject: `Aevoria assessment — ${document.getElementById('firstName').value} ${document.getElementById('lastName').value}`,
+      Respondent: `${document.getElementById('firstName').value} ${document.getElementById('lastName').value}`,
+      FamilyBranch: document.getElementById('branch').value || 'Not specified',
+      CompletingFor: data.behalf,
+      Involvement: data.role,
+      WealthComposition: data.composition.join('; ') || 'Not answered',
+      Countries: data.countries,
+      Scale: data.scale,
+      Institutions: insts,
+      PrimaryObjective: data.objective,
+      DesiredDirection: data.direction.join('; ') || 'Not answered',
+      Concerns: data.concerns.join('; ') || 'Not answered',
+      WhatPrompted: document.getElementById('prompt').value || 'Not provided',
+      TargetAllocation: Object.keys(alloc).length ? alloc : 'Not provided',
+      Constraints: data.constraints.join('; ') || 'None noted',
+      ConstraintNote: document.getElementById('constraintNote').value || '',
+      Email: document.getElementById('email').value,
+      Phone: document.getElementById('phone').value || 'Not provided',
+      PreferredContact: data.contactPref
+    };
+
+    try {
+      const res = await fetch(FORMSPREE_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+      if (!res.ok) throw new Error('bad response');
+      go(6);
+    } catch (e) {
+      btn.disabled = false;
+      btn.innerHTML = 'Submit <span class="arrow">→</span>';
+      err.textContent = 'Something went wrong sending this. Please try again, or contact us directly and we will pick it up.';
+      err.classList.remove('hidden');
+    }
+  }
+
+  // init with one institution
+  addInst();
+  go(0);
+</script>
+</body>
+</html>
